@@ -13,6 +13,7 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
         public bool vaping;
+		public bool interacting;
 
         [Header("Movement Settings")]
 		public bool analogMovement;
@@ -49,6 +50,11 @@ namespace StarterAssets
         {
             VapeInput(value.isPressed);
         }
+
+        public void OnInteract(InputValue value)
+        {
+            InteractInput(value.isPressed);
+        }
 #endif
 
 
@@ -75,6 +81,11 @@ namespace StarterAssets
         public void VapeInput(bool vapeState)
         {
             vaping = vapeState;
+        }
+
+        public void InteractInput(bool interactingState)
+        {
+            interacting = interactingState;
         }
 
         private void OnApplicationFocus(bool hasFocus)
