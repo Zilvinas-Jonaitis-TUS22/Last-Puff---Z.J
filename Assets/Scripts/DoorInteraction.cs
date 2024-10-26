@@ -7,10 +7,14 @@ public class DoorInteraction : MonoBehaviour
 {
     public Animator doorAnimator; // Reference to the Animator component
     public GameObject interactionPrompt; // Reference to the UI element
+    public BoxCollider triggerCollider;
     private bool isPlayerInRange = false;
     private bool hasOpened = false; // Track if the door has been opened
     private StarterAssetsInputs inputs;
     private CrosshairManager crosshairManager; // Reference to the CrosshairManager
+
+    //Audio
+    public AudioSource theAudioSource;
 
     private void Start()
     {
@@ -59,7 +63,9 @@ public class DoorInteraction : MonoBehaviour
         {
             doorAnimator.SetTrigger("OpenDoor");
         }
-
+        triggerCollider.enabled = false;
+        theAudioSource.Play();
+        isPlayerInRange = false;
         Debug.Log("Door opened!");
         hasOpened = true; // Mark the door as opened
         interactionPrompt.SetActive(false); // Hide the interaction prompt

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ShadowMovement : MonoBehaviour
 {
@@ -11,61 +12,98 @@ public class ShadowMovement : MonoBehaviour
     public AudioClip lostAudio; // Assign the audio clip for the lost state
     public AudioClip normalAudio; // Assign the audio clip for the normal state
     public AudioClip transitionAudio; // Assign the audio clip for the transition
+    public List<Transform> patrolPoints; // List of patrol points
     public float spottedRadius = 5f; // Radius to trigger "Spotted"
     public float lostRadius = 10f;   // Radius to trigger "Lost"
+    public float loseSightTime = 3f; // Time in seconds to lose sight if blocked
 
+    private NavMeshAgent navAgent; // NavMesh agent component
     private bool isLost = false; // Track whether the object is in the lost state
+    private int currentPatrolIndex = 0; // Current patrol point index
+    private bool isFollowingPlayer = false; // Is the entity following the player
+    private float lostSightTimer = 0f; // Timer for losing sight of the player
 
     void Start()
     {
-        // Optionally initialize things here
+        navAgent = GetComponent<NavMeshAgent>();
+        GoToNextPatrolPoint();
     }
 
     void Update()
     {
         if (player != null)
         {
-            // Calculate the direction to the player
-            Vector3 direction = player.position - transform.position;
-            direction.y = 0; // Keep the rotation on the horizontal plane
+            float distance = Vector3.Distance(player.position, transform.position);
 
-            // Rotate towards the player
-            if (direction != Vector3.zero)
+            if (isFollowingPlayer)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
-            }
+                // Following player - check if sight is lost
+                bool canSeePlayer = CheckLineOfSight();
 
-            // Check the distance to the player
-            float distance = direction.magnitude;
-
-            // Trigger "Spotted" if within spotted radius
-            if (distance < spottedRadius)
-            {
-                animator.SetBool("Spotted", true);
-                if (isLost)
+                if (distance < spottedRadius && canSeePlayer)
                 {
-                    PlayTransitionAudio(); // Play transition audio when turning not lost
-                    StopAudio(); // Stop lost audio
-                    isLost = false; // Transition to not lost
+                    // Maintain following state
+                    lostSightTimer = 0f;
+                    animator.SetBool("Spotted", true);
+                    animator.SetBool("Lost", false);
+                    navAgent.SetDestination(player.position);
+                    PlayAudio(normalAudio, false);
                 }
-                PlayAudio(normalAudio, false); // Play normal audio once
-            }
-            else if (distance > lostRadius)
-            {
-                animator.SetBool("Spotted", false);
-                animator.SetBool("Lost", true);
-                if (!isLost)
+                else
                 {
-                    isLost = true; // Transition to lost
-                    PlayAudio(lostAudio, true); // Loop lost audio
+                    // Increment sight timer if sight is lost
+                    lostSightTimer += Time.deltaTime;
+                    if (lostSightTimer >= loseSightTime)
+                    {
+                        isFollowingPlayer = false;
+                        animator.SetBool("Spotted", false);
+                        animator.SetBool("Lost", true);
+                        lostSightTimer = 0f;
+                        GoToNextPatrolPoint();
+                        PlayAudio(lostAudio, true);
+                    }
                 }
             }
             else
             {
-                animator.SetBool("Lost", false);
+                // Patrolling - check if player is within spotted radius and line of sight
+                if (distance < spottedRadius && CheckLineOfSight())
+                {
+                    isFollowingPlayer = true;
+                    animator.SetBool("Spotted", true);
+                    PlayTransitionAudio();
+                    PlayAudio(normalAudio, false);
+                }
+                else if (!navAgent.pathPending && navAgent.remainingDistance < 0.5f)
+                {
+                    // Move to the next patrol point if close to current one
+                    GoToNextPatrolPoint();
+                }
             }
         }
+    }
+
+    void GoToNextPatrolPoint()
+    {
+        if (patrolPoints.Count == 0) return;
+
+        navAgent.SetDestination(patrolPoints[currentPatrolIndex].position);
+        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Count;
+    }
+
+    bool CheckLineOfSight()
+    {
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        Ray ray = new Ray(transform.position, directionToPlayer);
+        if (Physics.Raycast(ray, out RaycastHit hit, lostRadius))
+        {
+            // Check if the ray hit the player
+            if (hit.collider.CompareTag("Player"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void PlayAudio(AudioClip clip, bool loop = false)
@@ -97,5 +135,12 @@ public class ShadowMovement : MonoBehaviour
         // Draw the lost radius
         Gizmos.color = Color.red; // Color for lost radius
         Gizmos.DrawWireSphere(transform.position, lostRadius);
+
+        // Draw patrol points
+        Gizmos.color = Color.blue;
+        foreach (var patrolPoint in patrolPoints)
+        {
+            Gizmos.DrawWireSphere(patrolPoint.position, 0.5f);
+        }
     }
 }
