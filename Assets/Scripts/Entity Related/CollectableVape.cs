@@ -5,18 +5,17 @@ using UnityEngine;
 public class CollectableVape : MonoBehaviour
 {
     public float refillAmount = 20f; // Amount to refill the vape bar
+    public string vapeID; // Unique ID for this vape object
 
-    // Reference to the VapeScript (assign this in the Inspector or find it at runtime)
     private VapeScript vapeScript;
+    public AudioSource collectSound;
 
-    public AudioSource collectSound; // AudioSource for collection sound
+    private bool isCollected = false; // Track collection status
 
     void Start()
     {
-        // Try to find the VapeScript component in the scene
         vapeScript = FindObjectOfType<VapeScript>();
 
-        // If there's no AudioSource assigned in the inspector, add one dynamically
         if (collectSound == null)
         {
             collectSound = gameObject.AddComponent<AudioSource>();
@@ -25,14 +24,15 @@ public class CollectableVape : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object colliding with this one is the player
-        if (other.CompareTag("Player")) // Make sure your player GameObject has the tag "Player"
+        if (other.CompareTag("Player") && !isCollected)
         {
+            isCollected = true; // Mark as collected
+
             // Refills the vape bar
             if (vapeScript != null)
             {
-                vapeScript.vapeJuiceSlider.value += refillAmount; // Refill the vape juice slider
-                vapeScript.vapeJuiceSlider.value = Mathf.Clamp(vapeScript.vapeJuiceSlider.value, 0, vapeScript.vapeJuiceAmount); // Clamp to max
+                vapeScript.vapeJuiceSlider.value += refillAmount;
+                vapeScript.vapeJuiceSlider.value = Mathf.Clamp(vapeScript.vapeJuiceSlider.value, 0, vapeScript.vapeJuiceAmount);
             }
 
             // Play the collection sound
@@ -41,8 +41,8 @@ public class CollectableVape : MonoBehaviour
                 collectSound.Play();
             }
 
-            // Destroy the collectable object after the sound has finished playing
-            Destroy(gameObject, collectSound.clip.length);
+            // Disable the object after collecting
+            gameObject.SetActive(false);
         }
     }
 }

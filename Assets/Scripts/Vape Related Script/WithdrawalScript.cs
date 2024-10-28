@@ -30,7 +30,6 @@ public class WithdrawalScript : MonoBehaviour
         }
     }
 
-    // Call this method to increase withdrawal when vaping
     public void OnVape()
     {
         currentWithdrawalAmount += increaseRate * Time.deltaTime; // Increase the withdrawal bar
@@ -40,7 +39,6 @@ public class WithdrawalScript : MonoBehaviour
 
     private void PlayerDies()
     {
-        Debug.Log("Player has died due to withdrawal!");
-        // Add player death logic here (e.g., respawn, game over screen, etc.)
+        // Implement player death logic
     }
 }
