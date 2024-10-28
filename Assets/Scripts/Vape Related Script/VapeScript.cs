@@ -11,6 +11,8 @@ public class VapeScript : MonoBehaviour
     public Animator animator; // Reference to the Animator component
     public Animator handAnimator; // Reference to the Animator component
     public Light vapeLight; // Reference to the Light component
+    public AudioSource vapeAudioSource; // Reference to the AudioSource for vaping sound
+    public AudioSource exhaleAudioSource; // Reference to the AudioSource for exhale sound
     public float vapeJuiceAmount = 100f; // Total amount of vape juice
     public float consumptionRate = 1f; // Amount of vape juice consumed per second
 
@@ -30,6 +32,19 @@ public class VapeScript : MonoBehaviour
         if (vapeLight != null)
         {
             vapeLight.enabled = false;
+        }
+
+        // Ensure vaping audio is set to loop and is not playing initially
+        if (vapeAudioSource != null)
+        {
+            vapeAudioSource.loop = true;
+            vapeAudioSource.Stop();
+        }
+
+        // Ensure exhale audio does not loop
+        if (exhaleAudioSource != null)
+        {
+            exhaleAudioSource.loop = false;
         }
     }
 
@@ -54,10 +69,17 @@ public class VapeScript : MonoBehaviour
                 animator.SetBool("Currently Vaping", true);
                 handAnimator.SetBool("Currently Vaping", true);
                 _withdrawalScript.OnVape(); // Increase withdrawal when vaping
+
                 // Enable the light when vaping
                 if (vapeLight != null)
                 {
                     vapeLight.enabled = true;
+                }
+
+                // Play vaping audio if it's not already playing
+                if (vapeAudioSource != null && !vapeAudioSource.isPlaying)
+                {
+                    vapeAudioSource.Play();
                 }
             }
         }
@@ -67,10 +89,23 @@ public class VapeScript : MonoBehaviour
             // Set the "Currently Vaping" parameter to false when not vaping
             animator.SetBool("Currently Vaping", false);
             handAnimator.SetBool("Currently Vaping", false);
+
             // Disable the light when not vaping
             if (vapeLight != null)
             {
                 vapeLight.enabled = false;
+            }
+
+            // Stop vaping audio and play exhale sound once when vaping stops
+            if (vapeAudioSource != null && vapeAudioSource.isPlaying)
+            {
+                vapeAudioSource.Stop();
+
+                // Play the exhale audio if available
+                if (exhaleAudioSource != null)
+                {
+                    exhaleAudioSource.Play();
+                }
             }
         }
     }
