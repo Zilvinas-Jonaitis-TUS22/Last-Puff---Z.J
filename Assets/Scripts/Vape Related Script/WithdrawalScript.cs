@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class WithdrawalScript : MonoBehaviour
 {
+    public Transform player; // Assign the player object in the inspector
     public Slider withdrawalSlider; // Reference to the withdrawal slider UI component
     public float maxWithdrawalAmount = 100f; // Maximum withdrawal amount
     public float decreaseRate = 1f; // Amount withdrawal decreases per second
@@ -10,11 +11,15 @@ public class WithdrawalScript : MonoBehaviour
 
     private float currentWithdrawalAmount;
 
+    private PlayerRespawn playerRespawn; // Reference to PlayerRespawn script
+
     void Start()
     {
         currentWithdrawalAmount = maxWithdrawalAmount; // Initialize to max withdrawal amount
         withdrawalSlider.maxValue = maxWithdrawalAmount; // Set max value for the slider
         withdrawalSlider.value = currentWithdrawalAmount; // Set initial slider value
+
+        playerRespawn = player.GetComponent<PlayerRespawn>();
     }
 
     void Update()
@@ -39,6 +44,9 @@ public class WithdrawalScript : MonoBehaviour
 
     private void PlayerDies()
     {
-        // Implement player death logic
+        playerRespawn.RespawnWithDeathScreen();
+        currentWithdrawalAmount = maxWithdrawalAmount;
+        withdrawalSlider.maxValue = maxWithdrawalAmount;
+        withdrawalSlider.value = currentWithdrawalAmount;
     }
 }
