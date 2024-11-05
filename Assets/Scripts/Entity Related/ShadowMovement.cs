@@ -7,22 +7,28 @@ public class ShadowMovement : MonoBehaviour
 {
     public Transform player; // Assign the player object in the inspector
     public Animator animator; // Assign the Animator component in the inspector
+
+    //Audio
     public AudioSource audioSource; // Looping sound audio source
     public AudioSource transitionAudioSource; // Transition audio source
     public AudioSource jumpscareAudioSource; // Jumpscare audio source
     public AudioClip lostAudio; // Lost state audio clip
     public AudioClip normalAudio; // Normal state audio clip
     public AudioClip transitionAudio; // Transition audio clip
+
+    //Patrolling + Sight
     public List<Transform> patrolPoints; // List of patrol points
     public float spottedRadius = 5f; // Radius to trigger "Spotted"
     public float lostRadius = 10f; // Radius to trigger "Lost"
     public float jumpScareRadius = 3f; // Radius to trigger jumpscare
     public float loseSightTime = 3f; // Time in seconds to lose sight if blocked
-
     private NavMeshAgent navAgent; // NavMesh agent component
     private int currentPatrolIndex = 0; // Patrol point index
     private bool isFollowingPlayer = false; // Is the entity following the player
     private float lostSightTimer = 0f; // Timer for losing sight of the player
+
+    //Reset
+    public Vector3 resetPosition;
     private PlayerRespawn playerRespawn; // Reference to PlayerRespawn script
 
     void Start()
@@ -34,6 +40,8 @@ public class ShadowMovement : MonoBehaviour
         PlayAudio(lostAudio, true);
 
         GoToNextPatrolPoint();
+
+        resetPosition = transform.position;
     }
 
     void Update()
@@ -124,11 +132,6 @@ public class ShadowMovement : MonoBehaviour
         }
     }
 
-    void StopAudio()
-    {
-        audioSource.Stop();
-    }
-
     void PlayTransitionAudio()
     {
         transitionAudioSource.PlayOneShot(transitionAudio); // Play transition audio once
@@ -136,15 +139,19 @@ public class ShadowMovement : MonoBehaviour
 
     void TriggerJumpScare()
     {
-        if (jumpscareAudioSource != null && !jumpscareAudioSource.isPlaying)
-        {
-            jumpscareAudioSource.Play(); // Play jumpscare audio
-        }
+        //Audio
+        jumpscareAudioSource.Play();
+        //Reset Position
+        ResetEntity();
+        //Respawn Player
+        playerRespawn.RespawnWithDeathScreen();
+ 
+    }
 
-        if (playerRespawn != null)
-        {
-            playerRespawn.RespawnWithDeathScreen(); // Trigger player respawn with death screen
-        }
+    private void ResetEntity()
+    {
+       transform.position = resetPosition;
+       currentPatrolIndex = 0;
     }
 
     void OnDrawGizmos()

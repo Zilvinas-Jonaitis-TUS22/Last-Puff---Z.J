@@ -4,7 +4,7 @@ using UnityEngine.Video;
 
 public class PlayerRespawn : MonoBehaviour
 {
-    private Vector3 lastCheckpointPosition;
+    public Vector3 lastCheckpointPosition;
     public VideoPlayer deathScreenVideo;
     public GameObject normalUI;
     public AudioSource deathScreenAudio; 
@@ -22,7 +22,10 @@ public class PlayerRespawn : MonoBehaviour
 
     public void RespawnWithDeathScreen()
     {
+        deathScreenVideo.gameObject.SetActive(true);
         StartCoroutine(ShowDeathVideoAndRespawn());
+        transform.position = lastCheckpointPosition;
+        Debug.Log("Respawn Succesful");
     }
 
     private IEnumerator ShowDeathVideoAndRespawn()
@@ -33,21 +36,10 @@ public class PlayerRespawn : MonoBehaviour
         {
             deathScreenAudio.Play();
             deathScreenAudio2.Play();
-        }
-        deathScreenVideo.gameObject.SetActive(true);
+        } 
+        yield return new WaitForSeconds(0.5f);
         
-
-        // Play the audio if it exists
-
-
-        // Wait for 1 second before disabling the video
-        yield return new WaitForSeconds(0.5f);
-
-        // Move the player to the last checkpoint position
-        transform.position = lastCheckpointPosition;
-
         // Wait an additional 0.5 seconds, then disable the video
-        yield return new WaitForSeconds(0.5f);
         deathScreenVideo.gameObject.SetActive(false);
         normalUI.SetActive(true);
     }
