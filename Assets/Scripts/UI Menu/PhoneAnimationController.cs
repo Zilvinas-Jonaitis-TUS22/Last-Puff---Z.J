@@ -37,9 +37,6 @@ public class PhoneAnimationController : MonoBehaviour
         // Wait for the sound to finish playing (optional)
         yield return new WaitForSeconds(soundBeforeRaise.clip.length - 2f);
 
-        // Wait for a few seconds before raising the phone
-        yield return new WaitForSeconds(0.01f); // Change this duration as needed
-
         // Set RaisedPhone to true
         animator.SetBool("RaisedPhone", true); // Directly using the string
 
