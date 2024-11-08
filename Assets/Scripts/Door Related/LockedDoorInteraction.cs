@@ -9,6 +9,9 @@ public class LockedDoorInteraction : MonoBehaviour
     public GameObject interactionPrompt; // Reference to the UI element
     public GameObject keyPrompt; // Reference to the UI element
     public BoxCollider triggerCollider;
+
+    public Animator handAnimator;
+
     private bool isPlayerInRange = false;
     private bool hasOpened = false; // Track if the door has been opened
     private StarterAssetsInputs inputs;
@@ -77,6 +80,9 @@ public class LockedDoorInteraction : MonoBehaviour
         {
             doorAnimator.SetTrigger("OpenDoor");
         }
+        //Play Interaction Animation
+        handAnimator.SetTrigger("Interacting");
+
         triggerCollider.enabled = false;
         theAudioSource.Play();
         isPlayerInRange = false;

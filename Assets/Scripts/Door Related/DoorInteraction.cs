@@ -6,6 +6,7 @@ using UnityEngine.UI; // Add this if using Unity UI
 public class DoorInteraction : MonoBehaviour
 {
     public Animator doorAnimator; // Reference to the Animator component
+    public Animator handAnimator; // Reference to the hand Animator component
     public GameObject interactionPrompt; // Reference to the UI element
     public BoxCollider triggerCollider;
     private bool isPlayerInRange = false;
@@ -63,6 +64,7 @@ public class DoorInteraction : MonoBehaviour
         {
             doorAnimator.SetTrigger("OpenDoor");
         }
+        handAnimator.SetTrigger("Interacting");
         triggerCollider.enabled = false;
         theAudioSource.Play();
         isPlayerInRange = false;

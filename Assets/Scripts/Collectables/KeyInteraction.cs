@@ -4,6 +4,7 @@ public class KeyInteraction : MonoBehaviour
 {
     private PlayerInventory playerInventory; // Reference to PlayerInventory for updating keys
     public AudioSource keyCollectAudioSource; // Audio source for key collection sound
+    public Animator handAnimator;
 
     private void Start()
     {
@@ -32,8 +33,11 @@ public class KeyInteraction : MonoBehaviour
             playerInventory.keys++;
             Debug.Log("Key collected! Total keys: " + playerInventory.keys);
 
-            // Destroy the key object after the sound finishes playing
-            Destroy(gameObject, keyCollectAudioSource.clip.length);
+            //Play Interaction Animation
+            handAnimator.SetTrigger("Interacting");
+
+    // Destroy the key object after the sound finishes playing
+    Destroy(gameObject, keyCollectAudioSource.clip.length);
         }
     }
 }

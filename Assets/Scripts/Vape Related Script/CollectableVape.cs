@@ -10,6 +10,8 @@ public class CollectableVape : MonoBehaviour
     private VapeScript vapeScript;
     public AudioSource collectSound;
 
+    public Animator handAnimator; // Reference to the hand Animator component
+
     private bool isCollected = false; // Track collection status
 
     void Start()
@@ -27,6 +29,8 @@ public class CollectableVape : MonoBehaviour
         if (other.CompareTag("Player") && !isCollected)
         {
             isCollected = true; // Mark as collected
+            //Play Interaction Animation
+            handAnimator.SetTrigger("Interacting");
 
             // Refills the vape bar
             if (vapeScript != null)
