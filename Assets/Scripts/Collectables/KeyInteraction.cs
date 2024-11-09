@@ -34,7 +34,7 @@ public class KeyInteraction : MonoBehaviour
             Debug.Log("Key collected! Total keys: " + playerInventory.keys);
 
             //Play Interaction Animation
-            handAnimator.SetTrigger("Interacting");
+            handAnimator.SetTrigger("Grabbing");
 
     // Destroy the key object after the sound finishes playing
     Destroy(gameObject, keyCollectAudioSource.clip.length);

@@ -44,7 +44,7 @@ namespace StarterAssets
 		public void OnSprint(InputValue value)
 		{
 			SprintInput(value.isPressed);
-		}
+        }
 
         public void OnVaping(InputValue value)
         {

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI; // For the UI Slider component
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -38,9 +39,19 @@ namespace StarterAssets
 
         [Header("Audio Sources")]
         public AudioSource walkAudioSource;
-        public AudioSource runAudioSource; // New running audio source
+        public AudioSource runAudioSource;
         public AudioSource jumpAudioSource;
         public AudioSource landAudioSource;
+
+        [Header("Sprint")]
+        public Slider sprintBar; // UI Slider reference for sprint bar
+        public float maxSprintDuration = 5.0f;
+        public float sprintCooldown = 2.0f;
+
+        private float _currentSprintDuration;
+        private bool _isSprinting;
+        private bool _canSprint = true;
+        private float _sprintCooldownTimer = 0f;
 
         private float _cinemachineTargetPitch;
         private float _speed;
@@ -57,8 +68,6 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
-
-        public float vapeBoost = 2.5f;
 
         private const float _threshold = 0.01f;
 
@@ -92,10 +101,16 @@ namespace StarterAssets
             Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
-            _input = GetComponent<StarterAssetsInputs>();
-
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            // Initialize sprint duration and sprint bar
+            _currentSprintDuration = maxSprintDuration;
+            if (sprintBar != null)
+            {
+                sprintBar.maxValue = maxSprintDuration;
+                sprintBar.value = _currentSprintDuration;
+            }
         }
 
         private void Update()
@@ -103,6 +118,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+            UpdateSprintBar();
         }
 
         private void LateUpdate()
@@ -110,43 +126,18 @@ namespace StarterAssets
             CameraRotation();
         }
 
-        private void GroundedCheck()
+        private void UpdateSprintBar()
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            bool wasGrounded = Grounded;
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
 
-            if (!wasGrounded && Grounded && landAudioSource != null)
+            // Update the UI sprint bar with current sprint duration
+            if (sprintBar != null)
             {
-                landAudioSource.Play();
-                _isJumping = false;
+                sprintBar.value = _currentSprintDuration; // Normalize for the slider
             }
         }
-
-        private void CameraRotation()
-        {
-            if (_input.look.sqrMagnitude >= _threshold)
-            {
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-                _cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
-                _rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
-
-                _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
-                CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
-                transform.Rotate(Vector3.up * _rotationVelocity);
-            }
-        }
-
         private void Move()
         {
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
-
-            // Apply vaping boost only if there is vape juice
-            if (_input != null && _input.vaping)
-            {
-                targetSpeed *= vapeBoost;
-            }
+            float targetSpeed = _canSprint && _input.sprint && _currentSprintDuration > 0 ? SprintSpeed : MoveSpeed;
 
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
@@ -172,35 +163,64 @@ namespace StarterAssets
 
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
-            // Audio control based on vaping status and vape juice amount
-            if (Grounded && _input.move != Vector2.zero)
+            // Sprint and cooldown logic
+            if (_input.move != Vector2.zero)
             {
-                if (_input != null && _input.vaping)
+                if (_input.sprint && _currentSprintDuration > 0 && _canSprint)
                 {
-                    if (runAudioSource != null && !runAudioSource.isPlaying)
-                    {
-                        runAudioSource.loop = true;
-                        runAudioSource.Play();
-                    }
+                    _isSprinting = true;
+                    _currentSprintDuration -= Time.deltaTime;
+                    if (runAudioSource != null && !runAudioSource.isPlaying) runAudioSource.Play();
                     if (walkAudioSource.isPlaying) walkAudioSource.Stop();
                 }
                 else
                 {
-                    if (walkAudioSource != null && !walkAudioSource.isPlaying)
-                    {
-                        walkAudioSource.loop = true;
-                        walkAudioSource.Play();
-                    }
+                    _isSprinting = false;
+                    if (walkAudioSource != null && !walkAudioSource.isPlaying) walkAudioSource.Play();
                     if (runAudioSource.isPlaying) runAudioSource.Stop();
+                }
+
+                // Start cooldown if sprint duration is depleted
+                if (_currentSprintDuration <= 0)
+                {
+                    _canSprint = false;
+                    _sprintCooldownTimer = sprintCooldown;
+                }
+                else if (!_input.sprint)
+                {
+                    _sprintCooldownTimer = sprintCooldown;
+                }
+                else
+                {
+                    _canSprint = true;
                 }
             }
             else
             {
-                // Stop both audio sources when not moving
                 if (walkAudioSource.isPlaying) walkAudioSource.Stop();
                 if (runAudioSource.isPlaying) runAudioSource.Stop();
             }
+
+            // Cooldown and gradual refill logic
+            if (!_isSprinting)
+            {
+                _sprintCooldownTimer -= Time.deltaTime;
+
+                // Start refilling when cooldown finishes
+                if (_sprintCooldownTimer <= 0 && _currentSprintDuration < maxSprintDuration)
+                {
+                    _currentSprintDuration += Time.deltaTime * 0.5f;  // Adjust refill rate here
+                }
+
+                // Ensure sprint duration doesn't exceed maximum
+                if (_currentSprintDuration >= maxSprintDuration)
+                {
+                    _currentSprintDuration = maxSprintDuration;
+                }
+            }
         }
+
+        
 
 
         private void JumpAndGravity()
@@ -245,6 +265,34 @@ namespace StarterAssets
             if (_verticalVelocity < _terminalVelocity)
             {
                 _verticalVelocity += Gravity * Time.deltaTime;
+            }
+        }
+
+        private void CameraRotation()
+        {
+            if (_input.look.sqrMagnitude >= _threshold)
+            {
+                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                _cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
+                _rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
+
+                _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+                CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
+                transform.Rotate(Vector3.up * _rotationVelocity);
+            }
+        }
+
+        private void GroundedCheck()
+        {
+            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
+            bool wasGrounded = Grounded;
+            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+
+            if (!wasGrounded && Grounded && landAudioSource != null)
+            {
+                landAudioSource.Play();
+                _isJumping = false;
             }
         }
 

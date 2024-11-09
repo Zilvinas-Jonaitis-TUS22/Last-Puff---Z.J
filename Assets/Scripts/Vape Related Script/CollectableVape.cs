@@ -30,7 +30,7 @@ public class CollectableVape : MonoBehaviour
         {
             isCollected = true; // Mark as collected
             //Play Interaction Animation
-            handAnimator.SetTrigger("Interacting");
+            handAnimator.SetTrigger("Grabbing");
 
             // Refills the vape bar
             if (vapeScript != null)
