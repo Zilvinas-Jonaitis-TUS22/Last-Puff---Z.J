@@ -5,7 +5,7 @@ using UnityEngine.UI; // Required for using UI elements
 public class PhoneAnimationController : MonoBehaviour
 {
     // Animator reference
-    private Animator animator;
+    public Animator animator;
 
     // UI elements to be controlled
     public GameObject imageToShow;      // Reference to the image GameObject
@@ -17,7 +17,6 @@ public class PhoneAnimationController : MonoBehaviour
     void Start()
     {
         // Get the Animator component attached to the GameObject
-        animator = GetComponent<Animator>();
 
         // Start the phone raise sequence
         StartCoroutine(RaisePhoneCoroutine());

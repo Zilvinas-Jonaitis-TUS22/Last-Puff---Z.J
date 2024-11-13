@@ -6,6 +6,9 @@ TagManager:
   tags:
   - CinemachineTarget
   - Collectable
+  - TimelineAssets1
+  - TimeTrigger1
+  - MasterTimeline1
   layers:
   - Default
   - TransparentFX
