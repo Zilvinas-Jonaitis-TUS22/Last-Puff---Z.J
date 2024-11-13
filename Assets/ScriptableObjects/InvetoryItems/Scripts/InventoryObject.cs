@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-[CreateAssetMenu(fileName = "New-Default-Item", menuName ="Inventory System/Items/Default")]
 public class InventoryObject : ScriptableObject
 {
+    [Header("Default Attributes")]
     public Sprite UIImage;
-    [TextArea(15, 20)]
     public string description;
     public int quantity;
+    public AudioClip collectSound;
 }
