@@ -14,6 +14,7 @@ namespace StarterAssets
 		public bool sprint;
         public bool vaping;
 		public bool interacting;
+        public bool inventoryState = false;
 
         [Header("Movement Settings")]
 		public bool analogMovement;
@@ -44,6 +45,19 @@ namespace StarterAssets
 		public void OnSprint(InputValue value)
 		{
 			SprintInput(value.isPressed);
+        }
+
+        public void OnOpenInventory(InputValue value)
+        {
+			inventoryState = !inventoryState;
+			if (inventoryState)
+			{
+                SetCursorState(!cursorLocked);
+            }
+            else
+            {
+                SetCursorState(cursorLocked);
+            }
         }
 
         public void OnVaping(InputValue value)
