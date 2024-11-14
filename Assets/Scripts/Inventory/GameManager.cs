@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
 
         foreach (InventoryObject item in inventoryList)
         {
-            if (itemToAdd  == item)
+            if (itemToAdd == item)
             {
                 item.quantity++;
                 newItem = false;
@@ -55,6 +55,11 @@ public class GameManager : MonoBehaviour
 
         inventoryPanelManager.UpdateItems(inventoryList);
 
+    }
+
+    public void UpdateInventory()
+    {
+        inventoryPanelManager.UpdateItems(inventoryList);
     }
 
     private void OnDestroy()

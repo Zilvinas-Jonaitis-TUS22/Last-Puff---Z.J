@@ -11,8 +11,14 @@ public class VapeObject : InventoryObject
     public void ItemAction()
     {
         // Find the VapeScript in the scene
-        VapeScript vapeScript = FindObjectOfType<VapeScript>();
-        vapeScript.vapeJuiceAmount += refillAmount;
-        vapeScript.vapeJuiceSlider.value += refillAmount;
+        if (quantity > 0)
+        {
+            VapeScript vapeScript = FindObjectOfType<VapeScript>();
+            vapeScript.vapeJuiceAmount += refillAmount;
+            vapeScript.vapeJuiceSlider.value += refillAmount;
+            //Minus quanitity
+            quantity--;
+        }
+
     }
 }

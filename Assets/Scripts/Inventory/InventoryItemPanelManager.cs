@@ -1,14 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using static UnityEditor.LightingExplorerTableColumn;
 
 public class InventoryItemPanelManager : MonoBehaviour
 {
     public InventoryObject dataType;
+    private GameManager _gameManager;
     public TMP_Text tmpQuantity;
+
+    public void Start()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+    }
     public void SetImage(Sprite uiImage)
     {
         GetComponent<Image>().sprite = uiImage;
@@ -31,6 +34,8 @@ public class InventoryItemPanelManager : MonoBehaviour
             {
                 vapeObject.ItemAction();
             }
+            //Update Quanitity
+            _gameManager.UpdateInventory();
         }
     }
 }
