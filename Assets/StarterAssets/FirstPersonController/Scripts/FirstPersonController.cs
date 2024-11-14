@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI; // For the UI Slider component
+using static UnityEngine.Rendering.DebugUI;
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -44,7 +46,7 @@ namespace StarterAssets
         public AudioSource landAudioSource;
 
         [Header("Sprint")]
-        public Slider sprintBar; // UI Slider reference for sprint bar
+        public Slider sprintBar;
         public float maxSprintDuration = 5.0f;
         public float sprintCooldown = 2.0f;
         private float _currentSprintDuration;
@@ -161,7 +163,8 @@ namespace StarterAssets
                 inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
             }
 
-            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+                 _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+           
 
             // Sprint logic
             if (_input.sprint && _currentSprintDuration > 0 && !sprintKeyHeld)

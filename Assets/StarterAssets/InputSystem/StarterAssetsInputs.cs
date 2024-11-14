@@ -5,53 +5,72 @@ using UnityEngine.InputSystem;
 
 namespace StarterAssets
 {
-	public class StarterAssetsInputs : MonoBehaviour
-	{
-		[Header("Character Input Values")]
-		public Vector2 move;
-		public Vector2 look;
-		public bool jump;
-		public bool sprint;
+    public class StarterAssetsInputs : MonoBehaviour
+    {
+        [Header("Character Input Values")]
+        public Vector2 move;
+        public Vector2 look;
+        public bool jump;
+        public bool sprint;
         public bool vaping;
-		public bool interacting;
+        public bool interacting;
         public bool inventoryState = false;
 
         [Header("Movement Settings")]
-		public bool analogMovement;
+        public bool analogMovement;
 
-		[Header("Mouse Cursor Settings")]
-		public bool cursorLocked = true;
-		public bool cursorInputForLook = true;
+        [Header("Mouse Cursor Settings")]
+        public bool cursorLocked = true;
+        public bool cursorInputForLook = true;
 
 #if ENABLE_INPUT_SYSTEM
-		public void OnMove(InputValue value)
-		{
-			MoveInput(value.Get<Vector2>());
-		}
+        public void OnMove(InputValue value)
+        {
+            if (!inventoryState)
+            {
+                MoveInput(value.Get<Vector2>());
+            }
+            else
+            {
+                MoveInput(Vector2.zero);
+            }
+        }
 
-		public void OnLook(InputValue value)
-		{
-			if(cursorInputForLook)
-			{
-				LookInput(value.Get<Vector2>());
-			}
-		}
+        public void OnLook(InputValue value)
+        {
+            if (cursorInputForLook)
+            {
+                if (!inventoryState)
+                {
+                    LookInput(value.Get<Vector2>());
+                }
+                else
+                {
+                    LookInput(Vector2.zero);
+                }
+            }
+        }
 
-		public void OnJump(InputValue value)
-		{
-			JumpInput(value.isPressed);
-		}
+        public void OnJump(InputValue value)
+        {
+            JumpInput(value.isPressed);
+        }
 
-		public void OnSprint(InputValue value)
-		{
-			SprintInput(value.isPressed);
+        public void OnSprint(InputValue value)
+        {
+            if (!inventoryState)
+            {
+                SprintInput(value.isPressed);
+            }
         }
 
         public void OnOpenInventory(InputValue value)
         {
-			inventoryState = !inventoryState;
-			if (inventoryState)
-			{
+            inventoryState = !inventoryState;
+            if (inventoryState)
+            {
+                vaping = false;
+                sprint = false;
                 SetCursorState(!cursorLocked);
             }
             else
@@ -59,12 +78,15 @@ namespace StarterAssets
                 SetCursorState(cursorLocked);
             }
         }
-
         public void OnVaping(InputValue value)
         {
-            VapeInput(value.isPressed);
-        }
+            if (!inventoryState)
+            {
+                VapeInput(value.isPressed);
+            }
+            
 
+        }
         public void OnInteract(InputValue value)
         {
             InteractInput(value.isPressed);
@@ -73,24 +95,24 @@ namespace StarterAssets
 
 
         public void MoveInput(Vector2 newMoveDirection)
-		{
-			move = newMoveDirection;
-		} 
+        {
+            move = newMoveDirection;
+        }
 
-		public void LookInput(Vector2 newLookDirection)
-		{
-			look = newLookDirection;
-		}
+        public void LookInput(Vector2 newLookDirection)
+        {
+            look = newLookDirection;
+        }
 
-		public void JumpInput(bool newJumpState)
-		{
-			jump = newJumpState;
-		}
+        public void JumpInput(bool newJumpState)
+        {
+            jump = newJumpState;
+        }
 
-		public void SprintInput(bool newSprintState)
-		{
-			sprint = newSprintState;
-		}
+        public void SprintInput(bool newSprintState)
+        {
+            sprint = newSprintState;
+        }
 
         public void VapeInput(bool vapeState)
         {
@@ -103,14 +125,14 @@ namespace StarterAssets
         }
 
         private void OnApplicationFocus(bool hasFocus)
-		{
-			SetCursorState(cursorLocked);
-		}
+        {
+            SetCursorState(cursorLocked);
+        }
 
-		private void SetCursorState(bool newState)
-		{
-			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
-		}
-	}
-	
+        private void SetCursorState(bool newState)
+        {
+            Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+        }
+    }
+
 }

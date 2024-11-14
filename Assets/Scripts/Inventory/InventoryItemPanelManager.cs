@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class InventoryItemPanelManager : MonoBehaviour
 {
+    public InventoryObject emptySlot;
     public InventoryObject dataType;
     private GameManager _gameManager;
     public TMP_Text tmpQuantity;
@@ -20,6 +21,10 @@ public class InventoryItemPanelManager : MonoBehaviour
     public void UpdateQuantity(int quantity)
     {
         tmpQuantity.text = "" + quantity;
+        if (quantity == 0)
+        {
+            SetImage(emptySlot.UIImage);
+        }
     }
 
     public void SetData(InventoryObject dataAdded)

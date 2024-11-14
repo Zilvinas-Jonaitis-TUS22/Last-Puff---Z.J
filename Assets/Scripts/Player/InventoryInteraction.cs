@@ -1,19 +1,16 @@
 using StarterAssets;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryInteraction : MonoBehaviour
 {
     public StarterAssetsInputs _input;
-    public GameObject inventoryUI;
+    public Animator inventoryUI;
     public GameObject crosshairUI;
     public Animator leftHandAnimator;
 
     void Start()
     {
         leftHandAnimator.SetBool("InventoryOpen", false);
-        inventoryUI.SetActive(false);
         crosshairUI.SetActive(true);
     }
 
@@ -23,15 +20,15 @@ public class InventoryInteraction : MonoBehaviour
         if (_input.inventoryState)
         {
             leftHandAnimator.SetBool("InventoryOpen", true);
-            inventoryUI.SetActive(true);
+            inventoryUI.SetBool("InventoryOpen", true);
             crosshairUI.SetActive(false);
         }
         else
         {
             leftHandAnimator.SetBool("InventoryOpen", false);
-            inventoryUI.SetActive(false);
+            inventoryUI.SetBool("InventoryOpen", false);
             crosshairUI.SetActive(true);
         }
-        
+
     }
 }

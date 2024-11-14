@@ -228,7 +228,7 @@
                     "name": "",
                     "id": "a21f0b50-3a64-4615-848f-f07a18912233",
                     "path": "<Mouse>/leftButton",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": "",
                     "action": "Vaping",
