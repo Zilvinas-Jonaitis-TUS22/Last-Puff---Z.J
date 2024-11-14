@@ -16,6 +16,10 @@ public class InventoryPanelManager : MonoBehaviour
         {
             inventoryItemPanels[activeItemPanels - 1].SetActive(true);
             inventoryItemPanels[activeItemPanels - 1].GetComponent<InventoryItemPanelManager>().SetImage(item.UIImage);
+            if (item is VapeObject vapeItem)
+            {
+                inventoryItemPanels[activeItemPanels - 1].GetComponent<InventoryItemPanelManager>().SetData(vapeItem);
+            }
         }
     }
 

@@ -1,23 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
 [CreateAssetMenu(fileName = "Default-Vape", menuName = "Inventory System/Items/Vape")]
 public class VapeObject : InventoryObject
 {
+
     [Header("Vape Attributes")]
     public float refillAmount = 50f; // Amount to refill the vape bar
 
-    // Start is called before the first frame update
-    void Start()
+    public void ItemAction()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        // Find the VapeScript in the scene
+        VapeScript vapeScript = FindObjectOfType<VapeScript>();
+        vapeScript.vapeJuiceAmount += refillAmount;
+        vapeScript.vapeJuiceSlider.value += refillAmount;
     }
 }

@@ -47,11 +47,11 @@ namespace StarterAssets
         public Slider sprintBar; // UI Slider reference for sprint bar
         public float maxSprintDuration = 5.0f;
         public float sprintCooldown = 2.0f;
-
         private float _currentSprintDuration;
         private bool _isSprinting;
-        private bool _canSprint = true;
+        private bool sprintKeyHeld = true;
         private float _sprintCooldownTimer = 0f;
+        private bool _sprintReleased;
 
         private float _cinemachineTargetPitch;
         private float _speed;
@@ -137,7 +137,7 @@ namespace StarterAssets
         }
         private void Move()
         {
-            float targetSpeed = _canSprint && _input.sprint && _currentSprintDuration > 0 ? SprintSpeed : MoveSpeed;
+            float targetSpeed = _isSprinting && _input.sprint && _currentSprintDuration > 0 ? SprintSpeed : MoveSpeed;
 
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
@@ -163,45 +163,52 @@ namespace StarterAssets
 
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
-            // Sprint and cooldown logic
-            if (_input.move != Vector2.zero)
+            // Sprint logic
+            if (_input.sprint && _currentSprintDuration > 0 && !sprintKeyHeld)
             {
-                if (_input.sprint && _currentSprintDuration > 0 && _canSprint)
+                _sprintReleased = false;
+                _isSprinting = true;
+                _currentSprintDuration -= Time.deltaTime;
+                // Play the run sound only if grounded
+                if (runAudioSource != null && !runAudioSource.isPlaying && Grounded)
                 {
-                    _isSprinting = true;
-                    _currentSprintDuration -= Time.deltaTime;
-                    if (runAudioSource != null && !runAudioSource.isPlaying) runAudioSource.Play();
+                    runAudioSource.Play();
+                    // Stop the walk sound if playing
                     if (walkAudioSource.isPlaying) walkAudioSource.Stop();
                 }
-                else
-                {
-                    _isSprinting = false;
-                    if (walkAudioSource != null && !walkAudioSource.isPlaying) walkAudioSource.Play();
-                    if (runAudioSource.isPlaying) runAudioSource.Stop();
-                }
-
-                // Start cooldown if sprint duration is depleted
-                if (_currentSprintDuration <= 0)
-                {
-                    _canSprint = false;
-                    _sprintCooldownTimer = sprintCooldown;
-                }
-                else if (!_input.sprint)
-                {
-                    _sprintCooldownTimer = sprintCooldown;
-                }
-                else
-                {
-                    _canSprint = true;
-                }
+            }
+            else if (!_sprintReleased || (!_sprintReleased && _currentSprintDuration <= 0))
+            {
+                _sprintCooldownTimer = sprintCooldown;
+                _sprintReleased = true;
+                _isSprinting = false;
+                runAudioSource.Stop();
             }
             else
             {
-                if (walkAudioSource.isPlaying) walkAudioSource.Stop();
-                if (runAudioSource.isPlaying) runAudioSource.Stop();
+                _isSprinting = false;
+                if (!walkAudioSource.isPlaying)
+                {
+                    walkAudioSource.Play();
+                }
+                if (_input.sprint)
+                {
+                    sprintKeyHeld = true;
+                }
+                else
+                {
+                    sprintKeyHeld = false;
+                }
             }
 
-            // Cooldown and gradual refill logic
+            // Stop audio when airborne or when player is not moving
+            if (!Grounded || _input.move == Vector2.zero)
+            {
+                walkAudioSource.Stop();
+                runAudioSource.Stop();
+            }
+
+            // Continuous cooldown and gradual refill logic, regardless of movement
             if (!_isSprinting)
             {
                 _sprintCooldownTimer -= Time.deltaTime;
@@ -209,7 +216,7 @@ namespace StarterAssets
                 // Start refilling when cooldown finishes
                 if (_sprintCooldownTimer <= 0 && _currentSprintDuration < maxSprintDuration)
                 {
-                    _currentSprintDuration += Time.deltaTime * 0.5f;  // Adjust refill rate here
+                    _currentSprintDuration += Time.deltaTime * 1.0f;  // Adjust refill rate here
                 }
 
                 // Ensure sprint duration doesn't exceed maximum
@@ -219,9 +226,6 @@ namespace StarterAssets
                 }
             }
         }
-
-        
-
 
         private void JumpAndGravity()
         {
