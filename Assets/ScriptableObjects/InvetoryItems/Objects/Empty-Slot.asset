@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25888a09a91818642bee5fd3d18c2f7e, type: 3}
   m_Name: Empty-Slot
   m_EditorClassIdentifier: 
-  UIImage: {fileID: 0}
-  description: 
+  UIImage: {fileID: 21300000, guid: 369176e17716ae946b08e04136a7a025, type: 3}
+  description: Empty Slot
   quantity: 0
   collectSound: {fileID: 0}
