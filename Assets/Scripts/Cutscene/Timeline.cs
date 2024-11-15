@@ -34,7 +34,7 @@ public class Timeline : MonoBehaviour
         masterTimelineObject = FindInactiveObjectByTag(timelineTag);
         if (masterTimelineObject == null)
         {
-            Debug.LogError("MasterTimeline GameObject not found with tag: " + timelineTag);
+           //Debug.LogError("MasterTimeline GameObject not found with tag: " + timelineTag);
             return;
         }
 
@@ -42,7 +42,7 @@ public class Timeline : MonoBehaviour
         bool wasActive = masterTimelineObject.activeSelf;
         if (!wasActive)
         {
-            Debug.Log("MasterTimeline is inactive, temporarily activating it.");
+            //Debug.Log("MasterTimeline is inactive, temporarily activating it.");
             masterTimelineObject.SetActive(true);
         }
 
@@ -50,11 +50,11 @@ public class Timeline : MonoBehaviour
         timelineDirector = masterTimelineObject.GetComponent<PlayableDirector>();
         if (timelineDirector == null || timelineDirector.playableAsset == null)
         {
-            Debug.LogError("PlayableDirector or playable asset not found on MasterTimeline.");
+            //Debug.LogError("PlayableDirector or playable asset not found on MasterTimeline.");
             return;
         }
 
-        Debug.Log("MasterTimeline and PlayableDirector found, deactivating MasterTimeline object at start.");
+        //Debug.Log("MasterTimeline and PlayableDirector found, deactivating MasterTimeline object at start.");
 
         // Deactivate MasterTimeline and all cinematic objects initially
         masterTimelineObject.SetActive(false);
@@ -107,7 +107,7 @@ public class Timeline : MonoBehaviour
         
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player entered trigger, starting cinematic...");
+            //Debug.Log("Player entered trigger, starting cinematic...");
 
             // Save the current animation state and time
             Animator playerAnimator = other.GetComponent<Animator>();
@@ -128,14 +128,14 @@ public class Timeline : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Player Animator not found.");
+                //Debug.LogError("Player Animator not found.");
             }
 
             // Deactivate all Player-tagged objects
             foreach (GameObject player in playerObjects)
             {
                 player.SetActive(false);
-                Debug.Log($"Player object deactivated: {player.name}");
+                //Debug.Log($"Player object deactivated: {player.name}");
             }
 
             // Reset input values (you'll need to customize this based on your input handling)
@@ -143,17 +143,17 @@ public class Timeline : MonoBehaviour
 
             // Activate MasterTimeline and all cinematic objects
             masterTimelineObject.SetActive(true);
-            Debug.Log("MasterTimeline activated.");
+            //Debug.Log("MasterTimeline activated.");
 
             foreach (GameObject obj in cinematicObjects)
             {
                 obj.SetActive(true);
-                Debug.Log($"Cinematic object activated: {obj.name}");
+                //Debug.Log($"Cinematic object activated: {obj.name}");
             }
 
             // Start the timeline
             timelineDirector.Play();
-            Debug.Log("Timeline playing...");
+            //Debug.Log("Timeline playing...");
 
             // Start the coroutine to wait for the timeline to finish
             StartCoroutine(WaitForTimelineToFinish());
@@ -162,7 +162,7 @@ public class Timeline : MonoBehaviour
 
     private void ResetPlayerInputs()
     {
-        Debug.Log("Resetting player inputs to zero.");
+        //Debug.Log("Resetting player inputs to zero.");
 
         // Ensure you have the right reference to the FirstPersonController or Input script
         // Example for Starter Assets:
@@ -194,38 +194,38 @@ public class Timeline : MonoBehaviour
 
     private IEnumerator WaitForTimelineToFinish()
     {
-        Debug.Log("Started coroutine to wait for timeline to finish.");
+        //Debug.Log("Started coroutine to wait for timeline to finish.");
 
         // Wait until the timeline finishes playing
         while (timelineDirector.state == PlayState.Playing)
         {
             if (!timelineLogOnce)
             {
-                Debug.Log("Timeline still playing...");
+                //Debug.Log("Timeline still playing...");
                 timelineLogOnce = true; // Log this message only once
             }
             yield return null;  // Keep checking the timeline state
         }
 
         // Timeline has finished playing, now proceed with the next steps
-        Debug.Log("Timeline finished!");
+        //Debug.Log("Timeline finished!");
 
         // Deactivate cinematic objects after the timeline finishes
         foreach (GameObject obj in cinematicObjects)
         {
             obj.SetActive(false);
-            Debug.Log($"Cinematic object deactivated: {obj.name}");
+            //Debug.Log($"Cinematic object deactivated: {obj.name}");
         }
 
         // Deactivate the CinematicTrigger GameObject
         if (cinematicTriggerObject != null)
         {
             cinematicTriggerObject.SetActive(false);
-            Debug.Log("CinematicTrigger deactivated.");
+            //Debug.Log("CinematicTrigger deactivated.");
         }
 
         // Reactivate player objects and place them at the specified position
-        Debug.Log($"Found {playerObjects.Count} player objects to reactivate.");
+        //Debug.Log($"Found {playerObjects.Count} player objects to reactivate.");
 
         playerObject.transform.position = playerReturnPosition;
         playerObject.transform.rotation = playerReturnRotation;
@@ -243,7 +243,7 @@ public class Timeline : MonoBehaviour
             }
 
             player.SetActive(true);
-            Debug.Log($"Player object reactivated and positioned: {player.name}");
+            //Debug.Log($"Player object reactivated and positioned: {player.name}");
 
             // Ensure the player object is active before accessing the Animator
             if (player.activeInHierarchy)
@@ -261,12 +261,12 @@ public class Timeline : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("Player Animator not found on reactivation.");
+                    //Debug.LogError("Player Animator not found on reactivation.");
                 }
             }
             else
             {
-                Debug.LogError("Player object is not active in hierarchy.");
+                //Debug.LogError("Player object is not active in hierarchy.");
             }
         }
 
@@ -289,7 +289,7 @@ public class Timeline : MonoBehaviour
 
         // Deactivate the MasterTimeline GameObject
         masterTimelineObject.SetActive(false);
-        Debug.Log("MasterTimeline deactivated after timeline finishes.");
+        //Debug.Log("MasterTimeline deactivated after timeline finishes.");
 
         if (UICanvas != null)
         {
