@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public AudioSource audioForCollect;
 
     public List<InventoryObject> inventoryList = new List<InventoryObject>();
     public InventoryPanelManager inventoryPanelManager;
@@ -54,7 +55,7 @@ public class GameManager : MonoBehaviour
         }
 
         inventoryPanelManager.UpdateItems(inventoryList);
-
+        audioForCollect.Play();
     }
 
     public void UpdateInventory()

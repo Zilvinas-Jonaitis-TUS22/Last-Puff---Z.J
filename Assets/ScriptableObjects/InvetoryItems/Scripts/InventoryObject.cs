@@ -8,5 +8,5 @@ public class InventoryObject : ScriptableObject
     public Sprite UIImage;
     public string description;
     public int quantity;
-    public AudioClip collectSound;
+    //public AudioClip collectSound;
 }
