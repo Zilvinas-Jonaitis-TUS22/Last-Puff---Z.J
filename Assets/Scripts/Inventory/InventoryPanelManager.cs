@@ -20,6 +20,10 @@ public class InventoryPanelManager : MonoBehaviour
             {
                 inventoryItemPanels[activeItemPanels - 1].GetComponent<InventoryItemPanelManager>().SetData(vapeItem);
             }
+            else if (item is KeyObject keyItem)
+            {
+                inventoryItemPanels[activeItemPanels - 1].GetComponent<InventoryItemPanelManager>().SetData(keyItem);
+            }
         }
     }
 

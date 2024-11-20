@@ -9,7 +9,6 @@ public class InventoryItemPickup : MonoBehaviour
     {
         if (other.gameObject.tag == "Collectable")
         {
-            
             InventoryObject theItemSO = other.gameObject.GetComponent<InventoryItem>().inventoryScriptableObject;
             GameManager.Instance.AddInventoryItem(theItemSO);
             leftHandAnimator.SetTrigger("Grabbing");

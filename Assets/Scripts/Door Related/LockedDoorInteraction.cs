@@ -1,10 +1,11 @@
 using StarterAssets;
 using UnityEngine;
-using UnityEngine.UI; // Add this if using Unity UI
 // or using TMPro; // If you're using TextMeshPro
 
 public class LockedDoorInteraction : MonoBehaviour
 {
+    public string doorColor = "";
+
     public Animator doorAnimator; // Reference to the Animator component
     public GameObject interactionPrompt; // Reference to the UI element
     public GameObject keyPrompt; // Reference to the UI element
@@ -12,8 +13,8 @@ public class LockedDoorInteraction : MonoBehaviour
 
     public Animator handAnimator;
 
-    private bool isPlayerInRange = false;
-    private bool hasOpened = false; // Track if the door has been opened
+    public bool isPlayerInRange = false;
+    public bool hasOpened = false; // Track if the door has been opened
     private StarterAssetsInputs inputs;
     private CrosshairManager crosshairManager; // Reference to the CrosshairManager
     private PlayerInventory playerInventory; // Reference to PlayerInventory for checking keys
@@ -32,25 +33,7 @@ public class LockedDoorInteraction : MonoBehaviour
 
     private void Update()
     {
-        // Check if the player is interacting, has a key, and the door hasn't been opened
-        if (isPlayerInRange && inputs.interacting && !hasOpened)
-        {
-            if (playerInventory != null && playerInventory.keys > 0)
-            {
-                OpenDoor();
-                playerInventory.keys--; // Reduce the key count by 1
-            }
-            else
-            {
-                Debug.Log("You need a key to open this door.");
-            }
-        }
-
-        // Update the interacting state in CrosshairManager
-        if (crosshairManager != null)
-        {
-            crosshairManager.interacting = isPlayerInRange; // Set interacting to true if in range
-        }
+        ShakeDoor();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -73,24 +56,34 @@ public class LockedDoorInteraction : MonoBehaviour
         }
     }
 
-    private void OpenDoor()
+    public void ShakeDoor()
     {
-        // Trigger the door opening animation
-        if (doorAnimator != null)
+        if (isPlayerInRange && inputs.interacting && !hasOpened)
         {
-            doorAnimator.SetTrigger("OpenDoor");
+            doorAnimator.SetTrigger("DoorShake");
         }
-        //Play Interaction Animation
-        handAnimator.SetTrigger("Interacting");
 
-        triggerCollider.enabled = false;
-        theAudioSource.Play();
-        isPlayerInRange = false;
-        Debug.Log("Door opened!");
-        hasOpened = true; // Mark the door as opened
-        interactionPrompt.SetActive(false); // Hide the interaction prompt
-        keyPrompt.SetActive(false); // Hide the key prompt
+    }
+    public void OpenDoor(string color)
+    {
+        if (color == doorColor && isPlayerInRange)
+        {
+            // Trigger the door opening animation
+            if (doorAnimator != null)
+            {
+                doorAnimator.SetTrigger("OpenDoor");
+            }
+            //Play Interaction Animation
+            handAnimator.SetTrigger("Interacting");
 
-        // Optionally, disable further interaction or add other logic here
+            triggerCollider.enabled = false;
+            theAudioSource.Play();
+            isPlayerInRange = false;
+            hasOpened = true; // Mark the door as opened
+            interactionPrompt.SetActive(false); // Hide the interaction prompt
+            keyPrompt.SetActive(false); // Hide the key prompt
+
+            // Optionally, disable further interaction or add other logic here
+        }
     }
 }

@@ -39,6 +39,10 @@ public class InventoryItemPanelManager : MonoBehaviour
             {
                 vapeObject.ItemAction();
             }
+            else if (dataType is KeyObject keyObject)
+            {
+                keyObject.ItemAction();
+            }
             //Update Quanitity
             _gameManager.UpdateInventory();
         }
