@@ -8,13 +8,6 @@ public class TooltipTrigger : MonoBehaviour
     public GameObject tooltipUI;
     public Animator UIanimator;
     public Animator WithdrawalImageAnimator;
-    // TextMeshProUGUI component to display tooltip text
-    public TextMeshProUGUI tooltipText;
-
-    public string tooltipMessage = "Use your vape to avoid dying from withdrawal";
-
-    // Time delay between each character in the typing effect
-    public float typingSpeed = 0.05f;
 
     private bool tipShown = false; // Ensure the tip is only shown once
 
@@ -33,24 +26,25 @@ public class TooltipTrigger : MonoBehaviour
         }
     }
 
-    // Method to show the tooltip with a typing effect
     void ShowTooltip()
     {
         tooltipUI.SetActive(true);
         UIanimator.SetTrigger("Open");
         WithdrawalImageAnimator.SetTrigger("Open");
-        StartCoroutine(TypeText(tooltipMessage));
         tipShown = true;
+        StartCoroutine(RemoveTextAfterDelay(8f));
     }
 
-    // Coroutine to simulate typing the text over time
-    IEnumerator TypeText(string message)
+    public void HideTooltip()
     {
-        tooltipText.text = ""; // Clear the text initially
-        foreach (char letter in message)
-        {
-            tooltipText.text += letter; // Add one letter at a time
-            yield return new WaitForSeconds(typingSpeed); // Wait for the typing speed
-        }
+        UIanimator.SetTrigger("Close");
+        WithdrawalImageAnimator.SetTrigger("Close");
     }
+    IEnumerator RemoveTextAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay); // Wait for the specified delay
+
+        HideTooltip();
+    }
+
 }

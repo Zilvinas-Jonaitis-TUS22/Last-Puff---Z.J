@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro; // For TextMeshPro
-using System.Collections; // For coroutines
 
 public class TextScript : MonoBehaviour
 {
