@@ -9,6 +9,9 @@ TagManager:
   - TimelineAssets1
   - TimeTrigger1
   - MasterTimeline1
+  - TimelineAssets2
+  - MasterTimeline2
+  - TimeTrigger2
   layers:
   - Default
   - TransparentFX
