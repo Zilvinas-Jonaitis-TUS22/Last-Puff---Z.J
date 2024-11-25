@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -26,6 +25,9 @@ public class ShadowMovement : MonoBehaviour
     private int currentPatrolIndex = 0; // Patrol point index
     private bool isFollowingPlayer = false; // Is the entity following the player
     private float lostSightTimer = 0f; // Timer for losing sight of the player
+
+    //Death screen
+    public Timeline deathTimeline;
 
     //Reset
     public Vector3 resetPosition;
@@ -139,19 +141,19 @@ public class ShadowMovement : MonoBehaviour
 
     void TriggerJumpScare()
     {
-        //Audio
-        jumpscareAudioSource.Play();
+        deathTimeline.ManualActivation();
         //Reset Position
         ResetEntity();
         //Respawn Player
         playerRespawn.RespawnWithDeathScreen();
- 
     }
 
     private void ResetEntity()
     {
-       transform.position = resetPosition;
-       currentPatrolIndex = 0;
+        navAgent.enabled = false;
+        transform.position = resetPosition;
+        currentPatrolIndex = 0;
+        navAgent.enabled = true;
     }
 
     void OnDrawGizmos()

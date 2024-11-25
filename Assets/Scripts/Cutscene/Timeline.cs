@@ -1,9 +1,8 @@
+using StarterAssets; // Ensure this using directive is included
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
-using Cinemachine; // Ensure this using directive is included
-using StarterAssets; // Ensure this using directive is included
 
 public class Timeline : MonoBehaviour
 {
@@ -11,6 +10,7 @@ public class Timeline : MonoBehaviour
     public string cinematicTriggerTag = "CinematicTrigger";
     public string timelineTag = "MasterTimeline";
 
+    public bool returnPlayerToPosition = true;
     public Vector3 playerReturnPosition;
     public Quaternion playerReturnRotation; // Exposed rotation variable
 
@@ -23,6 +23,7 @@ public class Timeline : MonoBehaviour
 
     public GameObject playerObject;
     public GameObject UICanvas;
+    public bool oneTimeUse = true;
 
     private int currentAnimationStateHash;
     private float currentAnimationTime;
@@ -34,7 +35,7 @@ public class Timeline : MonoBehaviour
         masterTimelineObject = FindInactiveObjectByTag(timelineTag);
         if (masterTimelineObject == null)
         {
-           //Debug.LogError("MasterTimeline GameObject not found with tag: " + timelineTag);
+            //Debug.LogError("MasterTimeline GameObject not found with tag: " + timelineTag);
             return;
         }
 
@@ -78,7 +79,7 @@ public class Timeline : MonoBehaviour
             {
                 playerObjects.Add(t.gameObject);
             }
-            else if (t.CompareTag(cinematicTriggerTag))
+            else if (t.CompareTag(cinematicTriggerTag) && oneTimeUse)
             {
                 cinematicTriggerObject = t.gameObject;
             }
@@ -98,13 +99,72 @@ public class Timeline : MonoBehaviour
         return null;
     }
 
+    public void ManualActivation()
+    {
+        if (UICanvas != null)
+        {
+            UICanvas.SetActive(false);
+        }
+
+        //Debug.Log("Player entered trigger, starting cinematic...");
+
+        // Save the current animation state and time
+        Animator playerAnimator = playerObject.GetComponent<Animator>();
+        if (playerAnimator != null)
+        {
+            AnimatorStateInfo currentStateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+            currentAnimationStateHash = currentStateInfo.shortNameHash;
+            currentAnimationTime = currentStateInfo.normalizedTime;
+
+            // Save all Bool parameter states
+            foreach (AnimatorControllerParameter parameter in playerAnimator.parameters)
+            {
+                if (parameter.type == AnimatorControllerParameterType.Bool)
+                {
+                    boolParameters[parameter.name] = playerAnimator.GetBool(parameter.name);
+                }
+            }
+        }
+        else
+        {
+            //Debug.LogError("Player Animator not found.");
+        }
+
+        // Deactivate all Player-tagged objects
+        foreach (GameObject player in playerObjects)
+        {
+            player.SetActive(false);
+            //Debug.Log($"Player object deactivated: {player.name}");
+        }
+
+        // Reset input values (you'll need to customize this based on your input handling)
+        ResetPlayerInputs();
+
+        // Activate MasterTimeline and all cinematic objects
+        masterTimelineObject.SetActive(true);
+        //Debug.Log("MasterTimeline activated.");
+
+        foreach (GameObject obj in cinematicObjects)
+        {
+            obj.SetActive(true);
+            //Debug.Log($"Cinematic object activated: {obj.name}");
+        }
+
+        // Start the timeline
+        timelineDirector.Play();
+        //Debug.Log("Timeline playing...");
+
+        // Start the coroutine to wait for the timeline to finish
+        StartCoroutine(WaitForTimelineToFinish());
+
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (UICanvas != null)
         {
             UICanvas.SetActive(false);
         }
-        
+
         if (other.CompareTag("Player"))
         {
             //Debug.Log("Player entered trigger, starting cinematic...");
@@ -226,9 +286,12 @@ public class Timeline : MonoBehaviour
 
         // Reactivate player objects and place them at the specified position
         //Debug.Log($"Found {playerObjects.Count} player objects to reactivate.");
-
-        playerObject.transform.position = playerReturnPosition;
-        playerObject.transform.rotation = playerReturnRotation;
+        if (returnPlayerToPosition)
+        {
+            playerObject.transform.position = playerReturnPosition;
+            playerObject.transform.rotation = playerReturnRotation;
+        }
+        
         foreach (GameObject player in playerObjects)
         {
             //player.transform.position = playerReturnPosition;
