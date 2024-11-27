@@ -12,10 +12,18 @@ public class KeyObject : InventoryObject
     {
         if (quantity > 0)
         {
-            LockedDoorInteraction doorScript = FindObjectOfType<LockedDoorInteraction>();
-            if (!doorScript.hasOpened && doorScript.isPlayerInRange)
+            // Find all LockedDoorInteraction scripts in the scene
+            LockedDoorInteraction[] doorScripts = FindObjectsOfType<LockedDoorInteraction>();
+
+            foreach (var doorScript in doorScripts)
             {
-                doorScript.OpenDoor(color);
+                // Check if the door is not opened and the player is in range
+                if (!doorScript.hasOpened && doorScript.isPlayerInRange)
+                {
+                    doorScript.OpenDoor(color);
+                    // Optionally, you could reduce the quantity here if a single key is consumed per door
+                    break; // Exit the loop if you only want to interact with one door
+                }
             }
         }
 

@@ -42,6 +42,7 @@ public class InventoryItemPanelManager : MonoBehaviour
             else if (dataType is KeyObject keyObject)
             {
                 keyObject.ItemAction();
+                Debug.Log("clicked");
             }
             //Update Quanitity
             _gameManager.UpdateInventory();
