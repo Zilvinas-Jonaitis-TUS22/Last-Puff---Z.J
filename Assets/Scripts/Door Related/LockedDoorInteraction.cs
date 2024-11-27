@@ -76,7 +76,7 @@ public class LockedDoorInteraction : MonoBehaviour
             //Play Interaction Animation
             handAnimator.SetTrigger("Interacting");
 
-            Debug.Log("opened door");
+            
             triggerCollider.enabled = false;
             theAudioSource.Play();
             isPlayerInRange = false;
